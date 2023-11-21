@@ -1,0 +1,796 @@
+openapi: 3.0.0
+info:
+  title: Mistral AI Inference Server
+  description: >-
+    This is an inference server for Mistral AI's large language models, provided
+    by [vLLM](https://github.com/vllm-project/vllm).
+  version: 0.1.0
+paths:
+  /v1/models:
+    get:
+      summary: Show Available Models
+      description: >-
+        Show available models. Right now we are only serving one model at a
+        time.
+      operationId: show_available_models_v1_models_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListModelsResponse'
+              example:
+                object: list
+                data:
+                  - id: mistralai/Mistral-7B-v0.1
+                    object: model
+                    created: 1695658438
+                    owned_by: vllm
+                    root: mistralai/Mistral-7B-v0.1
+                    parent: null
+                    permission:
+                      - id: modelperm-b1325bff197f4f95a1c50aa2d4a484d3
+                        object: model_permission
+                        created: 1695658438
+                        allow_create_engine: false
+                        allow_sampling: true
+                        allow_logprobs: true
+                        allow_search_indices: false
+                        allow_view: true
+                        allow_fine_tuning: false
+                        organization: '*'
+                        group: null
+                        is_blocking: false
+  /v1/chat/completions:
+    post:
+      summary: Create Chat Completion
+      description: >-
+        Completion API similar to OpenAI's API.
+
+
+        See  https://platform.openai.com/docs/api-reference/chat/create
+
+        for the full API specification. This API mimics the OpenAI
+        ChatCompletion API.
+
+
+        NOTE: Currently we do not support the following features:
+            - function_call (Users should implement this by themselves)
+            - logit_bias (to be supported by vLLM engine)
+      operationId: create_chat_completion_v1_chat_completions_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatCompletionRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateChatCompletionResponse'
+              example:
+                id: cmpl-2759a099e3c9429ca88b66b8ab9a9965
+                object: chat.completion
+                created: 1695318445
+                model: mistralai/Mistral-7B-v0.1
+                choices:
+                  - index: 0
+                    message:
+                      role: assistant
+                      content: |-
+                        beavers, busy builders,
+                        dam and pond, their kingdom.
+                    finish_reason: stop
+                usage:
+                  prompt_tokens: 17
+                  total_tokens: 35
+                  completion_tokens: 18
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/completions:
+    post:
+      summary: Create Completion
+      description: |-
+        Completion API similar to OpenAI's API.
+
+        See https://platform.openai.com/docs/api-reference/completions/create
+        for the API specification. This API mimics the OpenAI Completion API.
+
+        NOTE: Currently we do not support the following features:
+            - suffix (the language models we currently support do not support
+              suffix)
+            - logit_bias (to be supported by vLLM engine)
+      operationId: create_completion_v1_completions_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompletionRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCompletionResponse'
+              example:
+                id: cmpl-605c15936dd441aeb08f765035c9b88e
+                object: text_completion
+                created: 1695660046
+                model: mistralai/Mistral-7B-v0.1
+                choices:
+                  - index: 0
+                    text: >2-
+                       the “Mistral”.
+
+                      It is a cold and very dry wind that comes from the
+                      north-northwest, blowing from the Mediterranean Sea to
+                    logprobs:
+                      text_offset:
+                        - 0
+                        - 4
+                        - 6
+                        - 7
+                        - 10
+                        - 13
+                        - 15
+                        - 21
+                        - 27
+                        - 29
+                        - 32
+                        - 34
+                        - 39
+                        - 43
+                        - 48
+                        - 52
+                        - 57
+                        - 62
+                        - 68
+                        - 73
+                        - 77
+                        - 83
+                        - 84
+                        - 85
+                        - 89
+                        - 93
+                        - 94
+                        - 102
+                        - 107
+                        - 111
+                        - 125
+                        - 129
+                      token_logprobs:
+                        - -0.13521480560302734
+                        - -1.726870059967041
+                        - -0.5047908425331116
+                        - -0.00127948890440166
+                        - -0.000016212332411669195
+                        - -1.4993023872375488
+                        - -0.52951580286026
+                        - -0.029912520200014114
+                        - -0.8960363268852234
+                        - -0.3480968475341797
+                        - -0.06601884216070175
+                        - -0.35511890053749084
+                        - -0.9667784571647644
+                        - -4.5353264808654785
+                        - -0.2424573302268982
+                        - -0.018769746646285057
+                        - -0.5242247581481934
+                        - -2.609259605407715
+                        - -0.00840850081294775
+                        - -0.026951059699058533
+                        - -0.21602609753608704
+                        - -1.3617815971374512
+                        - -1.4199233055114746
+                        - -0.062266286462545395
+                        - -0.15606233477592468
+                        - -1.16431725025177
+                        - -1.035098671913147
+                        - -0.6018842458724976
+                        - -0.004355231299996376
+                        - -1.2897896766662598
+                        - -0.18369901180267334
+                        - -0.494781494140625
+                      tokens:
+                        - ▁the
+                        - ▁“
+                        - M
+                        - ist
+                        - ral
+                        - ”.
+                        - <0x0A>
+                        - <0x0A>
+                        - It
+                        - ▁is
+                        - ▁a
+                        - ▁cold
+                        - ▁and
+                        - ▁very
+                        - ▁dry
+                        - ▁wind
+                        - ▁that
+                        - ▁comes
+                        - ▁from
+                        - ▁the
+                        - ▁north
+                        - '-'
+                        - 'n'
+                        - orth
+                        - west
+                        - ','
+                        - ▁blowing
+                        - ▁from
+                        - ▁the
+                        - ▁Mediterranean
+                        - ▁Sea
+                        - ▁to
+                      top_logprobs:
+                        - ▁the: -0.13521480560302734
+                        - ▁“: -1.726870059967041
+                        - M: -0.5047908425331116
+                        - ist: -0.00127948890440166
+                        - ral: -0.000016212332411669195
+                        - ”.: -1.4993023872375488
+                        - <0x0A>: -0.52951580286026
+                        - <0x0A>: -0.029912520200014114
+                        - It: -0.8960363268852234
+                        - ▁is: -0.3480968475341797
+                        - ▁a: -0.06601884216070175
+                        - ▁cold: -0.35511890053749084
+                        - ▁and: -0.9667784571647644
+                        - ▁very: -4.5353264808654785
+                        - ▁dry: -0.2424573302268982
+                        - ▁wind: -0.018769746646285057
+                        - ▁that: -0.5242247581481934
+                        - ▁comes: -2.609259605407715
+                        - ▁from: -0.00840850081294775
+                        - ▁the: -0.026951059699058533
+                        - ▁north: -0.21602609753608704
+                        - '-': -1.3617815971374512
+                        - 'n': -1.4199233055114746
+                        - orth: -0.062266286462545395
+                        - west: -0.15606233477592468
+                        - ',': -1.16431725025177
+                        - ▁blowing: -1.035098671913147
+                        - ▁from: -0.6018842458724976
+                        - ▁the: -0.004355231299996376
+                        - ▁Mediterranean: -1.2897896766662598
+                        - ▁Sea: -0.18369901180267334
+                        - ▁to: -0.494781494140625
+                    finish_reason: length
+                usage:
+                  prompt_tokens: 11
+                  total_tokens: 43
+                  completion_tokens: 32
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /health/live:
+    get:
+      summary: Health Liveness Check
+      operationId: health_live_health_live_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /health/ready:
+    get:
+      summary: Health Readiness Check
+      operationId: health_ready_health_ready_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        type:
+          type: string
+          nullable: false
+        message:
+          type: string
+          nullable: false
+        param:
+          type: string
+          nullable: true
+        code:
+          type: string
+          nullable: true
+      required:
+        - type
+        - message
+        - param
+        - code
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          $ref: '#/components/schemas/Error'
+      required:
+        - error
+    ListModelsResponse:
+      type: object
+      properties:
+        object:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Model'
+      required:
+        - object
+        - data
+    ChatCompletionRequest:
+      properties:
+        model:
+          type: string
+          title: Model
+        messages:
+          anyOf:
+            - type: string
+            - items:
+                additionalProperties:
+                  type: string
+                type: object
+              type: array
+          title: Messages
+        temperature:
+          type: number
+          title: Temperature
+          default: 0.7
+        top_p:
+          type: number
+          title: Top P
+          default: 1
+        'n':
+          type: integer
+          title: 'N'
+          default: 1
+        max_tokens:
+          type: integer
+          title: Max Tokens
+          default: 8192
+        stop:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: string
+          title: Stop
+        stream:
+          type: boolean
+          title: Stream
+          default: false
+        presence_penalty:
+          type: number
+          title: Presence Penalty
+          default: 0
+        frequency_penalty:
+          type: number
+          title: Frequency Penalty
+          default: 0
+        logit_bias:
+          additionalProperties:
+            type: number
+          type: object
+          title: Logit Bias
+        user:
+          type: string
+          title: User
+        best_of:
+          type: integer
+          title: Best Of
+        top_k:
+          type: integer
+          title: Top K
+          default: -1
+        ignore_eos:
+          type: boolean
+          title: Ignore Eos
+          default: false
+        use_beam_search:
+          type: boolean
+          title: Use Beam Search
+          default: false
+      type: object
+      required:
+        - model
+        - messages
+      title: ChatCompletionRequest
+    ChatCompletionResponseMessage:
+      type: object
+      description: A chat completion message generated by the model.
+      properties:
+        role:
+          type: string
+          enum:
+            - user
+            - assistant
+          description: The role of the author of this message.
+        content:
+          type: string
+          description: The contents of the message.
+          nullable: true
+      required:
+        - role
+        - content
+    ChatCompletionStreamResponseDelta:
+      type: object
+      description: A chat completion delta generated by streamed model responses.
+      properties:
+        role:
+          type: string
+          enum:
+            - user
+            - assistant
+          description: The role of the author of this message.
+        content:
+          type: string
+          description: The contents of the chunk message.
+          nullable: true
+    CreateChatCompletionResponse:
+      type: object
+      description: >-
+        Represents a chat completion response returned by model, based on the
+        provided input.
+      properties:
+        id:
+          type: string
+          description: A unique identifier for the chat completion.
+        object:
+          type: string
+          description: The object type, which is always `chat.completion`.
+        created:
+          type: integer
+          description: >-
+            The Unix timestamp (in seconds) of when the chat completion was
+            created.
+        model:
+          type: string
+          description: The model used for the chat completion.
+        choices:
+          type: array
+          description: >-
+            A list of chat completion choices. Can be more than one if `n` is
+            greater than 1.
+          items:
+            type: object
+            required:
+              - index
+              - message
+              - finish_reason
+            properties:
+              index:
+                type: integer
+                description: The index of the choice in the list of choices.
+              message:
+                $ref: '#/components/schemas/ChatCompletionResponseMessage'
+              finish_reason:
+                type: string
+                description: >-
+                  The reason the model stopped generating tokens. This will be
+                  `stop` if the model hit a natural stop point or a provided
+                  stop sequence, `length` if the maximum number of tokens
+                  specified in the request was reached, `content_filter` if
+                  content was omitted due to a flag from our content filters, or
+                  `function_call` if the model called a function.
+                enum:
+                  - stop
+                  - length
+                  - content_filter
+        usage:
+          $ref: '#/components/schemas/CompletionUsage'
+      required:
+        - id
+        - object
+        - created
+        - model
+        - choices
+    CreateChatCompletionStreamResponse:
+      type: object
+      description: >-
+        Represents a streamed chunk of a chat completion response returned by
+        model, based on the provided input.
+      properties:
+        id:
+          type: string
+          description: A unique identifier for the chat completion chunk.
+        object:
+          type: string
+          description: The object type, which is always `chat.completion.chunk`.
+        created:
+          type: integer
+          description: >-
+            The Unix timestamp (in seconds) of when the chat completion chunk
+            was created.
+        model:
+          type: string
+          description: The model to generate the completion.
+        choices:
+          type: array
+          description: >-
+            A list of chat completion choices. Can be more than one if `n` is
+            greater than 1.
+          items:
+            type: object
+            required:
+              - index
+              - delta
+              - finish_reason
+            properties:
+              index:
+                type: integer
+                description: The index of the choice in the list of choices.
+              delta:
+                $ref: '#/components/schemas/ChatCompletionStreamResponseDelta'
+              finish_reason:
+                type: string
+                enum:
+                  - stop
+                  - length
+                  - function_call
+                nullable: true
+      required:
+        - id
+        - object
+        - created
+        - model
+        - choices
+    CreateCompletionResponse:
+      type: object
+      description: >
+        Represents a completion response from the API. Note: both the streamed
+        and non-streamed response objects share the same shape (unlike the chat
+        endpoint).
+      properties:
+        id:
+          type: string
+          description: A unique identifier for the completion.
+        object:
+          type: string
+          description: The object type, which is always "text_completion"
+        created:
+          type: integer
+          description: The Unix timestamp (in seconds) of when the completion was created.
+        model:
+          type: string
+          description: The model used for completion.
+        choices:
+          type: array
+          description: >-
+            The list of completion choices the model generated for the input
+            prompt.
+          items:
+            type: object
+            required:
+              - text
+              - index
+              - logprobs
+              - finish_reason
+            properties:
+              text:
+                type: string
+              index:
+                type: integer
+              logprobs:
+                type: object
+                nullable: true
+                properties:
+                  tokens:
+                    type: array
+                    items:
+                      type: string
+                  token_logprobs:
+                    type: array
+                    items:
+                      type: number
+                  top_logprobs:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties:
+                        type: integer
+                  text_offset:
+                    type: array
+                    items:
+                      type: integer
+              finish_reason:
+                type: string
+                description: >-
+                  The reason the model stopped generating tokens. This will be
+                  `stop` if the model hit a natural stop point or a provided
+                  stop sequence, `length` if the maximum number of tokens
+                  specified in the request was reached, or `content_filter` if
+                  content was omitted due to a flag from our content filters.
+                enum:
+                  - stop
+                  - length
+                  - content_filter
+        usage:
+          $ref: '#/components/schemas/CompletionUsage'
+      required:
+        - id
+        - object
+        - created
+        - model
+        - choices
+    CompletionRequest:
+      properties:
+        model:
+          type: string
+          title: Model
+        prompt:
+          anyOf:
+            - items:
+                type: integer
+              type: array
+            - items:
+                items:
+                  type: integer
+                type: array
+              type: array
+            - type: string
+            - items:
+                type: string
+              type: array
+          title: Prompt
+        suffix:
+          type: string
+          title: Suffix
+        max_tokens:
+          type: integer
+          title: Max Tokens
+          default: 16
+        temperature:
+          type: number
+          title: Temperature
+          default: 1
+        top_p:
+          type: number
+          title: Top P
+          default: 1
+        'n':
+          type: integer
+          title: 'N'
+          default: 1
+        stream:
+          type: boolean
+          title: Stream
+          default: false
+        logprobs:
+          type: integer
+          title: Logprobs
+        echo:
+          type: boolean
+          title: Echo
+          default: false
+        stop:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: string
+          title: Stop
+        presence_penalty:
+          type: number
+          title: Presence Penalty
+          default: 0
+        frequency_penalty:
+          type: number
+          title: Frequency Penalty
+          default: 0
+        best_of:
+          type: integer
+          title: Best Of
+        logit_bias:
+          additionalProperties:
+            type: number
+          type: object
+          title: Logit Bias
+        user:
+          type: string
+          title: User
+        top_k:
+          type: integer
+          title: Top K
+          default: -1
+        ignore_eos:
+          type: boolean
+          title: Ignore Eos
+          default: false
+        use_beam_search:
+          type: boolean
+          title: Use Beam Search
+          default: false
+      type: object
+      required:
+        - model
+        - prompt
+      title: CompletionRequest
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      title: ValidationError
+    Model:
+      title: Model
+      description: Describes a Mistral AI model that can be used with the API.
+      properties:
+        id:
+          type: string
+          description: The model identifier, which can be referenced in the API endpoints.
+        object:
+          type: string
+          description: The object type, which is always "model".
+        created:
+          type: integer
+          description: The Unix timestamp (in seconds) when the model was created.
+        owned_by:
+          type: string
+          description: The organization that owns the model.
+      required:
+        - id
+        - object
+        - created
+        - owned_by
+    CompletionUsage:
+      type: object
+      description: Usage statistics for the completion request.
+      properties:
+        prompt_tokens:
+          type: integer
+          description: Number of tokens in the prompt.
+        completion_tokens:
+          type: integer
+          description: Number of tokens in the generated completion.
+        total_tokens:
+          type: integer
+          description: Total number of tokens used in the request (prompt + completion).
+      required:
+        - prompt_tokens
+        - completion_tokens
+        - total_tokens
