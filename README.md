@@ -20,3 +20,11 @@
 
 - Quantization: <https://huggingface.co/docs/transformers/main_classes/quantization>
 - Tokenizer: <https://huggingface.co/docs/transformers/main_classes/tokenizer>
+
+
+## TODOs
+
+- add bash script for model download
+- add vector database
+- add custom data (pdfs)
+- add api server serving model
