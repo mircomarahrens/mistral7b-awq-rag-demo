@@ -1,4 +1,6 @@
-# Project template for Python based projects
+# Demo about retrieval-augmented generation with quantized open-source large language models
+
+... or me learning LLMs.
 
 - original model: <https://huggingface.co/mistralai/Mistral-7B-v0.1>
 - quantized model: <https://huggingface.co/TheBloke/Mistral-7B-v0.1-AWQ>
@@ -21,6 +23,10 @@
 - Quantization: <https://huggingface.co/docs/transformers/main_classes/quantization>
 - Tokenizer: <https://huggingface.co/docs/transformers/main_classes/tokenizer>
 
+## Paper
+
+- MistralAI paper: <https://arxiv.org/pdf/2310.06825.pdf>
+- OpenAI Text embeddings paper: <https://arxiv.org/abs/2201.10005>
 
 ## TODOs
 
