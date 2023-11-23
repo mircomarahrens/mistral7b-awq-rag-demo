@@ -1,4 +1,4 @@
-# Demo about retrieval-augmented generation with quantized open-source large language models
+# Retrieval-augmented generation with quantized open-source large language models
 
 ... or me learning LLMs.
 
@@ -18,14 +18,17 @@
 - <https://github.com/facebookresearch/faiss/wiki>
 - <https://github.com/TimDettmers/bitsandbytes>
 - <https://www.youtube.com/watch?v=IxrlHAJtqKE>
+- <https://research.ibm.com/blog/retrieval-augmented-generation-RAG>
 
 ## References
 
+- NLP Course: <https://huggingface.co/learn/nlp-course/chapter1/1>
 - Quantization: <https://huggingface.co/docs/transformers/main_classes/quantization>
 - Tokenizer: <https://huggingface.co/docs/transformers/main_classes/tokenizer>
 
 ## Paper
 
+- RAG: <https://arxiv.org/abs/2005.11401v4>
 - MistralAI paper: <https://arxiv.org/pdf/2310.06825.pdf>
 - OpenAI Text embeddings paper: <https://arxiv.org/abs/2201.10005>
 
@@ -35,3 +38,7 @@
 - add vector database
 - add custom data (pdfs)
 - add api server serving model
+
+## Others
+
+- <https://rise.readthedocs.io/en/latest/>

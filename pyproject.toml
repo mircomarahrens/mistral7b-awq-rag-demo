@@ -26,6 +26,10 @@ faiss-gpu = "^1.7.2"
 ipykernel = "^6.26.0"
 ipywidgets = "^8.1.1"
 pre-commit = "^3.5.0"
+black = "^23.11.0"
+notebook = "^7.0.6"
+jupyterlab = "^4.0.9"
+jupyterlab-rise = "^0.41.0"
 
 
 [[tool.poetry.source]]
