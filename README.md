@@ -14,7 +14,8 @@
 - <https://huggingface.co/TheBloke/SciPhi-Self-RAG-Mistral-7B-32k-AWQ>
 - <https://github.com/oobabooga/text-generation-webui>
 - <https://medium.com/@thakermadhav/build-your-own-rag-with-mistral-7b-and-langchain-97d0c92fa146>
-
+- <https://redis.io/docs/get-started/vector-database/>
+- <https://github.com/facebookresearch/faiss/wiki>
 - <https://github.com/TimDettmers/bitsandbytes>
 - <https://www.youtube.com/watch?v=IxrlHAJtqKE>
 
