@@ -342,9 +342,9 @@ html2text==2020.1.16 ; python_version >= "3.10" and python_version < "4.0" \
 huggingface-hub==0.19.4 ; python_version >= "3.10" and python_version < "4.0" \
     --hash=sha256:176a4fc355a851c17550e7619488f383189727eab209534d7cef2114dae77b22 \
     --hash=sha256:dba013f779da16f14b606492828f3760600a1e1801432d09fe1c33e50b825bb5
-idna==3.4 ; python_version >= "3.10" and python_version < "4.0" \
-    --hash=sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4 \
-    --hash=sha256:90b77e79eaa3eba6de819a0c442c0b4ceefc341a7a2ab77d7562bf49f425c5c2
+idna==3.5 ; python_version >= "3.10" and python_version < "4.0" \
+    --hash=sha256:27009fe2735bf8723353582d48575b23c533cc2c2de7b5a68908d91b5eb18d08 \
+    --hash=sha256:79b8f0ac92d2351be5f6122356c9a592c96d81c9a79e4b488bf2a6a15f88057a
 jinja2==3.1.2 ; python_version >= "3.10" and python_version < "4.0" \
     --hash=sha256:31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852 \
     --hash=sha256:6088930bfe239f0e6710546ab9c19c9ef35e29792895fed6e6e31a023a182a61

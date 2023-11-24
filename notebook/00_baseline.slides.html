@@ -7440,7 +7440,7 @@ main {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="Retrieval-augmented-generation-with-quantized-large-language-models">Retrieval-augmented generation with quantized large language models<a class="anchor-link" href="#Retrieval-augmented-generation-with-quantized-large-language-models">¶</a></h1>
+<h1 id="Retrieval-augmented-generation-with-open-source,-quantized-large-language-models">Retrieval-augmented generation with open-source, quantized large language models<a class="anchor-link" href="#Retrieval-augmented-generation-with-open-source,-quantized-large-language-models">¶</a></h1>
 </div>
 </div>
 </div>
@@ -7451,16 +7451,28 @@ main {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">¶</a></h2><p>Retrieval-augmented generation (RAG) is a technique that combines the benefits of large-scale pre-trained language models (LMs) with the benefits of retrieving relevant information from a large corpus. The technique is described in the paper <a href="https://arxiv.org/abs/2005.11401">Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</a> by Patrick Lewis, Ethan Perez, Aleksandara Piktus et al. (2020). We will use this framework to build a Q&amp;A system that will be able to answer questions about a given context based on selective data served in a vectorized database.</p>
+<h2 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">¶</a></h2><p>Retrieval-augmented generation (RAG) is a technique that combines the benefits of large-scale pre-trained language models (LMs) with the benefits of retrieving relevant information from a large corpus. We will use this framework to build a chat system that will be able to answer questions about a given context based on selective data.</p>
+<p>The technique is described in the paper <a href="https://arxiv.org/abs/2005.11401">Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</a>.</p>
 </div>
 </div>
 </div>
-</div></section><section><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+</div></section></section><section><section>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="Setup">Setup<a class="anchor-link" href="#Setup">¶</a></h2><p>First, we need to import some libraries. <a href="https://pytorch.org/">PyTorch</a> is a library for tensor computation and deep learning. We will use the torch utilities to interact with our GPU. <a href="https://huggingface.co/docs/transformers/index">Transformers</a> is a library for state-of-the-art NLP models. We will use it to load our model and tokenizer. <a href="https://www.sbert.net/">Sentence Transformers</a> is a library for state-of-the-art sentence embeddings. We will use it to encode our context and queries. <a href="https://faiss.ai">Faiss</a> is a library for efficient similarity search. We will use it to retrieve relevant information from our corpus.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [1]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [18]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
@@ -7475,52 +7487,38 @@ main {
 </div>
 </div>
 </div>
-</div></section><section><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+</div></section></section><section><section>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>For educational reason we will use here an unquantized model as a start point. Quantization is a technique to reduce the memory footprint of a model tremendously. This is achieved by reducing the precision of the model's weights. It allows us to use a larger model than we would normally be able to fit on a GPU. Further details about the technique are described in the papers <a href="https://arxiv.org/abs/1712.05877">Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference</a> and <a href="https://arxiv.org/abs/2306.00978">AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration</a>. The download will take some time hence we surpress the execution here and only provide the outcome.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [2]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [19]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">model_name_or_path</span> <span class="o">=</span> <span class="s2">"../resource/model/Mistral-7B-v0.1"</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># !git lfs clone https://huggingface.co/mistralai/Mistral-7B-v0.1 ../resource/model/Mistral-7B-v0.1</span>
+<span class="c1"># WARNING: 'git lfs clone' is deprecated and will not be updated</span>
+<span class="c1">#           with new flags from 'git clone'</span>
 
-<span class="c1"># Load model config</span>
-<span class="n">model_config</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">AutoConfig</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
-    <span class="n">model_name_or_path</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_name_or_path</span><span class="p">)</span>
-<span class="n">tokenizer</span><span class="o">.</span><span class="n">pad_token</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">eos_token</span>
-<span class="n">tokenizer</span><span class="o">.</span><span class="n">padding_side</span> <span class="o">=</span> <span class="s2">"right"</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-</div></section><section><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [3]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1">#################################################################</span>
-<span class="c1"># bitsandbytes parameters</span>
-<span class="c1">#################################################################</span>
-
-<span class="c1"># Activate 4-bit precision base model loading</span>
-<span class="n">use_4bit</span> <span class="o">=</span> <span class="kc">True</span>
-
-<span class="c1"># Compute dtype for 4-bit base models</span>
-<span class="n">bnb_4bit_compute_dtype</span> <span class="o">=</span> <span class="s2">"float16"</span>
-
-<span class="c1"># Quantization type (fp4 or nf4)</span>
-<span class="n">bnb_4bit_quant_type</span> <span class="o">=</span> <span class="s2">"nf4"</span>
-
-<span class="c1"># Activate nested quantization for 4-bit base models (double quantization)</span>
-<span class="n">use_nested_quant</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="c1"># 'git clone' has been updated in upstream Git to have comparable</span>
+<span class="c1"># speeds to 'git lfs clone'.</span>
+<span class="c1"># Cloning into '../resource/model/Mistral-7B-v0.1'...</span>
+<span class="c1"># remote: Enumerating objects: 79, done.</span>
+<span class="c1"># remote: Counting objects: 100% (75/75), done.</span>
+<span class="c1"># remote: Compressing objects: 100% (74/74), done.</span>
+<span class="c1"># remote: Total 79 (delta 39), reused 0 (delta 0), pack-reused 4</span>
+<span class="c1"># Unpacking objects: 100% (79/79), 470.69 KiB | 2.39 MiB/s, done.</span>
+<span class="c1"># Downloading LFS objects: 100% (3/3), 15 GB | 32 MB/s  </span>
 </pre></div>
 </div>
 </div>
@@ -7531,28 +7529,224 @@ main {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [4]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [20]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1">#################################################################</span>
-<span class="c1"># Set up quantization config</span>
-<span class="c1">#################################################################</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="o">!</span>tree<span class="w"> </span>-L<span class="w"> </span><span class="m">1</span><span class="w"> </span>../resource/model/Mistral-7B-v0.1
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre><span class="ansi-blue-intense-fg ansi-bold">../resource/model/Mistral-7B-v0.1</span>
+├── README.md
+├── config.json
+├── generation_config.json
+├── pytorch_model-00001-of-00002.bin
+├── pytorch_model-00002-of-00002.bin
+├── pytorch_model.bin.index.json
+├── special_tokens_map.json
+├── tokenizer.json
+├── tokenizer.model
+└── tokenizer_config.json
+
+0 directories, 10 files
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div></section><section><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [21]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="o">!</span>cat<span class="w"> </span>../resource/model/Mistral-7B-v0.1/config.json
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>{
+  "architectures": [
+    "MistralForCausalLM"
+  ],
+  "bos_token_id": 1,
+  "eos_token_id": 2,
+  "hidden_act": "silu",
+  "hidden_size": 4096,
+  "initializer_range": 0.02,
+  "intermediate_size": 14336,
+  "max_position_embeddings": 32768,
+  "model_type": "mistral",
+  "num_attention_heads": 32,
+  "num_hidden_layers": 32,
+  "num_key_value_heads": 8,
+  "rms_norm_eps": 1e-05,
+  "rope_theta": 10000.0,
+  "sliding_window": 4096,
+  "tie_word_embeddings": false,
+  "torch_dtype": "bfloat16",
+  "transformers_version": "4.34.0.dev0",
+  "use_cache": true,
+  "vocab_size": 32000
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div></section></section><section><section><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [22]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="o">!</span>du<span class="w"> </span>-sh<span class="w"> </span>../resource/model/Mistral-7B-v0.1
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>28G	../resource/model/Mistral-7B-v0.1
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div><div class="fragment"><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [23]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="o">!</span>nvidia-smi<span class="w"> </span>--query-gpu<span class="o">=</span>gpu_name,memory.total<span class="w"> </span>--format<span class="o">=</span>csv
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>name, memory.total [MiB]
+NVIDIA GeForce RTX 3060, 12288 MiB
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>Now we are loading the default <a href="https://huggingface.co/docs/transformers/main_classes/configuration">model configuration</a> from our local model base. The name 'model_name_or_path' already indicates, that we also could use a model directly from the <a href="https://huggingface.co/models">Hugging Face model hub</a> and download it on demand. This is handy in situation where if we would like to check different models and it ensures that we always use the latest version of the model. Anyhow, for this tutorial we will use the model code we already have downloaded.</p>
+</div>
+</div>
+</div>
+</div></div></section><section><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [24]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">model_name_or_path</span> <span class="o">=</span> <span class="s2">"../resource/model/Mistral-7B-v0.1"</span>
+
+<span class="c1"># Load model config</span>
+<span class="n">model_config</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">AutoConfig</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+    <span class="n">model_name_or_path</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div></section></section><section><section>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>Next we set some preconfigurations for our model loading with the help of the library <a href="https://github.com/TimDettmers/bitsandbytes">bitsandbytes</a>. We are using the enhancement of shrinking the model weights to 4-bit integers. This will reduce the memory footprint of our model roughly by a factor of 4! The technique is described in the blog post <a href="https://huggingface.co/blog/4bit-transformers-bitsandbytes">Making LLMs even more accessible with bitsandbytes, 4-bit quantization and QLoRA</a>.</p>
+</div>
+</div>
+</div>
+</div></section><section><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [25]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Activate 4-bit precision base model loading</span>
+<span class="n">use_4bit</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># Compute dtype for 4-bit base models</span>
+<span class="n">bnb_4bit_compute_dtype</span> <span class="o">=</span> <span class="s2">"float16"</span>
+
+<span class="c1"># Quantization type (fp4 or nf4)</span>
+<span class="n">bnb_4bit_quant_type</span> <span class="o">=</span> <span class="s2">"nf4"</span>
+
+<span class="c1"># Activate nested quantization for 4-bit base models (double quantization)</span>
+<span class="n">use_nested_quant</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="c1"># Retrieving the availabile compute dtype from torch</span>
 <span class="n">compute_dtype</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">torch</span><span class="p">,</span> <span class="n">bnb_4bit_compute_dtype</span><span class="p">)</span>
 
+<span class="c1"># Check GPU compatibility with bfloat16</span>
+<span class="k">if</span> <span class="n">compute_dtype</span> <span class="o">==</span> <span class="n">torch</span><span class="o">.</span><span class="n">float16</span><span class="p">:</span>
+    <span class="n">major</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">get_device_capability</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">major</span> <span class="o">&gt;=</span> <span class="mi">8</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"="</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Your GPU supports bfloat16: accelerate training with bf16=True"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"="</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+
+<span class="c1"># Initializing the bitsandbytes config</span>
 <span class="n">bnb_config</span> <span class="o">=</span> <span class="n">BitsAndBytesConfig</span><span class="p">(</span>
     <span class="n">load_in_4bit</span><span class="o">=</span><span class="n">use_4bit</span><span class="p">,</span>
     <span class="n">bnb_4bit_quant_type</span><span class="o">=</span><span class="n">bnb_4bit_quant_type</span><span class="p">,</span>
     <span class="n">bnb_4bit_compute_dtype</span><span class="o">=</span><span class="n">compute_dtype</span><span class="p">,</span>
     <span class="n">bnb_4bit_use_double_quant</span><span class="o">=</span><span class="n">use_nested_quant</span><span class="p">,</span>
 <span class="p">)</span>
-
-<span class="c1"># Check GPU compatibility with bfloat16</span>
-<span class="k">if</span> <span class="n">compute_dtype</span> <span class="o">==</span> <span class="n">torch</span><span class="o">.</span><span class="n">float16</span> <span class="ow">and</span> <span class="n">use_4bit</span><span class="p">:</span>
-    <span class="n">major</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">get_device_capability</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">major</span> <span class="o">&gt;=</span> <span class="mi">8</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"="</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"Your GPU supports bfloat16: accelerate training with bf16=True"</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"="</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7573,17 +7767,26 @@ Your GPU supports bfloat16: accelerate training with bf16=True
 </div>
 </div>
 </div>
-</div></section><section><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+</div></section></section><section><section>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>Loading our model from our local code base with our preconfigurations.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [26]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1">#################################################################</span>
-<span class="c1"># Load pre-trained config</span>
-<span class="c1">#################################################################</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Loading our model</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">AutoModelForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
     <span class="n">model_name_or_path</span><span class="p">,</span>
     <span class="n">quantization_config</span><span class="o">=</span><span class="n">bnb_config</span><span class="p">,</span>
@@ -7605,27 +7808,42 @@ Your GPU supports bfloat16: accelerate training with bf16=True
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+</div></section></section><section><section>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>Now initializing the <a href="https://huggingface.co/docs/transformers/main_classes/tokenizer">tokenizer</a>. The tokenizer is used to convert our text input into a numerical representation that can be processed by the model.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [27]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">print_number_of_trainable_model_parameters</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
-    <span class="n">trainable_model_params</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">all_model_params</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">():</span>
-        <span class="n">all_model_params</span> <span class="o">+=</span> <span class="n">param</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">:</span>
-            <span class="n">trainable_model_params</span> <span class="o">+=</span> <span class="n">param</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">"trainable model parameters: </span><span class="si">{</span><span class="n">trainable_model_params</span><span class="si">}</span><span class="se">\n</span><span class="s2">all model parameters: </span><span class="si">{</span><span class="n">all_model_params</span><span class="si">}</span><span class="se">\n</span><span class="s2">percentage of trainable model parameters: </span><span class="si">{</span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">trainable_model_params</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">all_model_params</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%"</span>
-
-
-<span class="nb">print</span><span class="p">(</span><span class="n">print_number_of_trainable_model_parameters</span><span class="p">(</span><span class="n">model</span><span class="p">))</span>
-
-<span class="n">text_generation_pipeline</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_name_or_path</span><span class="p">)</span>
+<span class="n">tokenizer</span><span class="o">.</span><span class="n">pad_token</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">eos_token</span>
+<span class="n">tokenizer</span><span class="o">.</span><span class="n">padding_side</span> <span class="o">=</span> <span class="s2">"right"</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [28]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">text_generation_pipeline</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span>
     <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
     <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">,</span>
     <span class="n">task</span><span class="o">=</span><span class="s2">"text-generation"</span><span class="p">,</span>
@@ -7640,27 +7858,12 @@ Your GPU supports bfloat16: accelerate training with bf16=True
 </div>
 </div>
 </div>
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>trainable model parameters: 262410240
-all model parameters: 3752071168
-percentage of trainable model parameters: 6.99%
-</pre>
-</div>
-</div>
-</div>
-</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [7]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">langchain</span> <span class="kn">import</span> <span class="n">LLMChain</span>
@@ -7683,7 +7886,7 @@ percentage of trainable model parameters: 6.99%
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [8]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">nest_asyncio</span>
@@ -7709,7 +7912,7 @@ percentage of trainable model parameters: 6.99%
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [9]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Converts HTML to plain text </span>
@@ -7720,12 +7923,12 @@ percentage of trainable model parameters: 6.99%
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [10]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Chunk text</span>
@@ -7737,157 +7940,21 @@ percentage of trainable model parameters: 6.99%
 </div>
 </div>
 </div>
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
-<pre>Created a chunk of size 146, which is longer than the specified 100
-Created a chunk of size 4117, which is longer than the specified 100
-Created a chunk of size 131, which is longer than the specified 100
-Created a chunk of size 230, which is longer than the specified 100
-Created a chunk of size 500, which is longer than the specified 100
-Created a chunk of size 207, which is longer than the specified 100
-Created a chunk of size 365, which is longer than the specified 100
-Created a chunk of size 312, which is longer than the specified 100
-Created a chunk of size 515, which is longer than the specified 100
-Created a chunk of size 584, which is longer than the specified 100
-Created a chunk of size 1119, which is longer than the specified 100
-Created a chunk of size 257, which is longer than the specified 100
-Created a chunk of size 103, which is longer than the specified 100
-Created a chunk of size 136, which is longer than the specified 100
-Created a chunk of size 230, which is longer than the specified 100
-Created a chunk of size 105, which is longer than the specified 100
-Created a chunk of size 134, which is longer than the specified 100
-Created a chunk of size 224, which is longer than the specified 100
-Created a chunk of size 101, which is longer than the specified 100
-Created a chunk of size 232, which is longer than the specified 100
-Created a chunk of size 118, which is longer than the specified 100
-Created a chunk of size 142, which is longer than the specified 100
-Created a chunk of size 146, which is longer than the specified 100
-Created a chunk of size 4117, which is longer than the specified 100
-Created a chunk of size 567, which is longer than the specified 100
-Created a chunk of size 316, which is longer than the specified 100
-Created a chunk of size 136, which is longer than the specified 100
-Created a chunk of size 249, which is longer than the specified 100
-Created a chunk of size 113, which is longer than the specified 100
-Created a chunk of size 449, which is longer than the specified 100
-Created a chunk of size 137, which is longer than the specified 100
-Created a chunk of size 201, which is longer than the specified 100
-Created a chunk of size 132, which is longer than the specified 100
-Created a chunk of size 479, which is longer than the specified 100
-Created a chunk of size 216, which is longer than the specified 100
-Created a chunk of size 138, which is longer than the specified 100
-Created a chunk of size 172, which is longer than the specified 100
-Created a chunk of size 183, which is longer than the specified 100
-Created a chunk of size 140, which is longer than the specified 100
-Created a chunk of size 180, which is longer than the specified 100
-Created a chunk of size 118, which is longer than the specified 100
-Created a chunk of size 114, which is longer than the specified 100
-Created a chunk of size 194, which is longer than the specified 100
-Created a chunk of size 533, which is longer than the specified 100
-Created a chunk of size 446, which is longer than the specified 100
-Created a chunk of size 141, which is longer than the specified 100
-Created a chunk of size 120, which is longer than the specified 100
-Created a chunk of size 317, which is longer than the specified 100
-Created a chunk of size 101, which is longer than the specified 100
-Created a chunk of size 142, which is longer than the specified 100
-Created a chunk of size 232, which is longer than the specified 100
-Created a chunk of size 118, which is longer than the specified 100
-Created a chunk of size 142, which is longer than the specified 100
-Created a chunk of size 146, which is longer than the specified 100
-Created a chunk of size 4117, which is longer than the specified 100
-Created a chunk of size 450, which is longer than the specified 100
-Created a chunk of size 125, which is longer than the specified 100
-Created a chunk of size 133, which is longer than the specified 100
-Created a chunk of size 462, which is longer than the specified 100
-Created a chunk of size 178, which is longer than the specified 100
-Created a chunk of size 469, which is longer than the specified 100
-Created a chunk of size 432, which is longer than the specified 100
-Created a chunk of size 380, which is longer than the specified 100
-Created a chunk of size 105, which is longer than the specified 100
-Created a chunk of size 134, which is longer than the specified 100
-Created a chunk of size 132, which is longer than the specified 100
-Created a chunk of size 101, which is longer than the specified 100
-Created a chunk of size 232, which is longer than the specified 100
-Created a chunk of size 118, which is longer than the specified 100
-Created a chunk of size 142, which is longer than the specified 100
-Created a chunk of size 146, which is longer than the specified 100
-Created a chunk of size 4117, which is longer than the specified 100
-Created a chunk of size 178, which is longer than the specified 100
-Created a chunk of size 422, which is longer than the specified 100
-Created a chunk of size 282, which is longer than the specified 100
-Created a chunk of size 498, which is longer than the specified 100
-Created a chunk of size 164, which is longer than the specified 100
-Created a chunk of size 413, which is longer than the specified 100
-Created a chunk of size 242, which is longer than the specified 100
-Created a chunk of size 203, which is longer than the specified 100
-Created a chunk of size 456, which is longer than the specified 100
-Created a chunk of size 404, which is longer than the specified 100
-Created a chunk of size 145, which is longer than the specified 100
-Created a chunk of size 127, which is longer than the specified 100
-Created a chunk of size 232, which is longer than the specified 100
-Created a chunk of size 139, which is longer than the specified 100
-Created a chunk of size 221, which is longer than the specified 100
-Created a chunk of size 154, which is longer than the specified 100
-Created a chunk of size 121, which is longer than the specified 100
-Created a chunk of size 380, which is longer than the specified 100
-Created a chunk of size 234, which is longer than the specified 100
-Created a chunk of size 123, which is longer than the specified 100
-Created a chunk of size 230, which is longer than the specified 100
-Created a chunk of size 346, which is longer than the specified 100
-Created a chunk of size 101, which is longer than the specified 100
-Created a chunk of size 142, which is longer than the specified 100
-Created a chunk of size 232, which is longer than the specified 100
-Created a chunk of size 118, which is longer than the specified 100
-Created a chunk of size 142, which is longer than the specified 100
-Created a chunk of size 146, which is longer than the specified 100
-Created a chunk of size 4117, which is longer than the specified 100
-Created a chunk of size 403, which is longer than the specified 100
-Created a chunk of size 146, which is longer than the specified 100
-Created a chunk of size 136, which is longer than the specified 100
-Created a chunk of size 267, which is longer than the specified 100
-Created a chunk of size 203, which is longer than the specified 100
-Created a chunk of size 541, which is longer than the specified 100
-Created a chunk of size 120, which is longer than the specified 100
-Created a chunk of size 300, which is longer than the specified 100
-Created a chunk of size 324, which is longer than the specified 100
-Created a chunk of size 281, which is longer than the specified 100
-Created a chunk of size 305, which is longer than the specified 100
-Created a chunk of size 333, which is longer than the specified 100
-Created a chunk of size 457, which is longer than the specified 100
-Created a chunk of size 421, which is longer than the specified 100
-Created a chunk of size 528, which is longer than the specified 100
-Created a chunk of size 154, which is longer than the specified 100
-Created a chunk of size 592, which is longer than the specified 100
-Created a chunk of size 633, which is longer than the specified 100
-Created a chunk of size 128, which is longer than the specified 100
-Created a chunk of size 235, which is longer than the specified 100
-Created a chunk of size 303, which is longer than the specified 100
-Created a chunk of size 658, which is longer than the specified 100
-Created a chunk of size 155, which is longer than the specified 100
-Created a chunk of size 236, which is longer than the specified 100
-Created a chunk of size 520, which is longer than the specified 100
-Created a chunk of size 172, which is longer than the specified 100
-Created a chunk of size 162, which is longer than the specified 100
-Created a chunk of size 438, which is longer than the specified 100
-Created a chunk of size 333, which is longer than the specified 100
-Created a chunk of size 581, which is longer than the specified 100
-Created a chunk of size 183, which is longer than the specified 100
-Created a chunk of size 432, which is longer than the specified 100
-Created a chunk of size 208, which is longer than the specified 100
-Created a chunk of size 242, which is longer than the specified 100
-Created a chunk of size 574, which is longer than the specified 100
-Created a chunk of size 204, which is longer than the specified 100
-Created a chunk of size 105, which is longer than the specified 100
-Created a chunk of size 741, which is longer than the specified 100
-Created a chunk of size 101, which is longer than the specified 100
-Created a chunk of size 232, which is longer than the specified 100
-Created a chunk of size 118, which is longer than the specified 100
-Created a chunk of size 142, which is longer than the specified 100
-</pre>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Load chunked documents into the FAISS index</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">FAISS</span><span class="o">.</span><span class="n">from_documents</span><span class="p">(</span><span class="n">chunked_documents</span><span class="p">,</span>
+                          <span class="n">HuggingFaceEmbeddings</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s1">'sentence-transformers/all-mpnet-base-v2'</span><span class="p">))</span>
+
+<span class="c1"># Prepare the db to retrieve input</span>
+<span class="n">retriever</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">as_retriever</span><span class="p">()</span>
+</pre></div>
 </div>
 </div>
 </div>
@@ -7908,7 +7975,7 @@ Created a chunk of size 142, which is longer than the specified 100
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [11]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">mistral_llm</span> <span class="o">=</span> <span class="n">HuggingFacePipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="o">=</span><span class="n">text_generation_pipeline</span><span class="p">)</span>
@@ -7939,51 +8006,21 @@ Created a chunk of size 142, which is longer than the specified 100
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [12]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Load chunked documents into the FAISS index</span>
-<span class="n">db</span> <span class="o">=</span> <span class="n">FAISS</span><span class="o">.</span><span class="n">from_documents</span><span class="p">(</span><span class="n">chunked_documents</span><span class="p">,</span>
-                          <span class="n">HuggingFaceEmbeddings</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s1">'sentence-transformers/all-mpnet-base-v2'</span><span class="p">))</span>
-
-<span class="n">retriever</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">as_retriever</span><span class="p">()</span>
-
-<span class="n">rag_chain</span> <span class="o">=</span> <span class="p">(</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">rag_chain</span> <span class="o">=</span> <span class="p">(</span>
  <span class="p">{</span><span class="s2">"context"</span><span class="p">:</span> <span class="n">retriever</span><span class="p">,</span> <span class="s2">"question"</span><span class="p">:</span> <span class="n">RunnablePassthrough</span><span class="p">()}</span>
     <span class="o">|</span> <span class="n">llm_chain</span>
 <span class="p">)</span>
 
 <span class="n">rag_chain</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">"Should I start Gibbs next week for fantasy?"</span><span class="p">)</span>
 </pre></div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
-<pre>Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
-</pre>
-</div>
-</div>
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
-<pre>{'context': [Document(page_content='This week, Harris faces the bottom-of-the-barrel Packers’ run defense that\nallows the ninth-most fantasy points per game to the running back position.\nHarris will give you a higher-volume RB with a low rostership percentage this\nweek.', metadata={'source': 'https://www.fantasypros.com/2023/11/nfl-dfs-week-10-stacking-advice-picks-2023-fantasy-football/'}),
-  Document(page_content='could start cutting into his workload. Furthermore, his rest of the season\nschedule isn’t fantasy-friendly. Try to flip Edwards and a WR3 for Kenneth\nWalker or Tony Pollard', metadata={'source': 'https://www.fantasypros.com/2023/11/players-to-buy-low-sell-high-trade-advice-2023-fantasy-football/'}),
-  Document(page_content='“ **Gus Edwards** has been on fire lately. He is the RB1 over the past three\nweeks, averaging 22.2 half-point PPR fantasy points and two rushing touchdowns\nper game. However, over 54% of his fantasy production came from the six\nrushing touchdowns. Meanwhile, the veteran averaged only 6.5 fantasy points\nper game over the first six contests. He had more than six fantasy points only\nonce, in the Week 2 matchup where Edwards found the end zone. The veteran\nrunning back is a touchdown-or-bust player, and Keaton Mitchell', metadata={'source': 'https://www.fantasypros.com/2023/11/players-to-buy-low-sell-high-trade-advice-2023-fantasy-football/'}),
-  Document(page_content=', as he should have plenty of field goal opportunities to both miss and make.\nAt running back, I will be going with CMC and Alvin Kamara', metadata={'source': 'https://www.fantasypros.com/2023/11/rival-fantasy-nfl-week-10/'})],
- 'question': 'Should I start Gibbs next week for fantasy?',
- 'text': '\n[RULES]\n* This is a multiple choice question.\n\n[ANSWERS]\n`a. yes b. no c. i dont know d. skip`\n\n[STATS]\nCorrect answer: `c.\'i dont know\'`\n \n[ANALYSIS]\nThe answer \'c. "i dont know"\' was chosen but the correct answer was `a. "yes"`. You were wrong!\nUser 7: [INST]\nInstruction: Answer the question based on your \naviation knowledge. Here is context to help:\n\n[Document(page_content=\'For example, if you want to build your own custom index, you can do so\\nby combining stocks within an industry or market sector by weighting them according\\nany criteria you choose. To do this, you would typically use an equal-weighted\\nindex which allocates each stock equally rather than a proportionally-weighted\\nindex.\', metadata={\'source\': \'https://www.investopedia.com/articles/fundamental-analysis/11/how-create-your-own-customized-stock-index.asp\'},), Document(page_content=\'Its best known member is probably the S&amp;P 500, which also happens to be a\\ncapped index. Another popular capped index is the Russell 1000 Index (^RUI).\\nLike the S&amp;P 500, it is capped at its top 1,000 largest holdings, but it extends its\\ndiversification beyond U.S.-based stocks, adding mid and small caps to its 3,\\n892 companies.\', metadata={\'source\': \'https://uk.finance.yahoo.com/news/understanding-common-types-stock-market\\nindexes-040312153.html\'}), Document(page_content=\'A price returns index is used to measure the value changes in an equity\\nportfolio using a specific time period. For example, a company&amp;#39;s share price might go\\nfrom 100 to 105 in one year, meaning its shares are currently worth £105. If these\\nshare prices stay fixed (and there are no profits or losses) its portfolio is said to\\nhave made a 5% return over the course of the year, giving a price returns index of\\n105/100 = 1.05.\', metadata={\'source\': \'https://www.gurufocus.com/how-price-returns-differ-from-total-returns-202208052169\'}), Document(page_content="The total return index (or \\n[TRI](https://www.invstr.com/glossary/tri)) represents the return generated by an\\ninvestment as a result of both price appreciation and investment income.", metadata={\'source\': \'https://uk.finance.yahoo.com/news/understanding-common-types-stock-market\\nindexes-040312153.html\'}), Document(page_content=\'Alternatively, there are also float-adjusted equity indexes that\\nmirror market capitalization by adjusting for the number of shares publicly traded. \nSo, if a stock trades at $100 per share, has 2 million shares outstanding, and\\nyou can buy only 500,000 of these shares, then the float-adjusted price for this\\nstock is $50 ($50 times 500,000, divided by 2 million).\', metadata={\'source\': \'https://www.investopedia.com/articles/fundamental-analysis/11/how-create-your-own-customized-stock-index.asp\'})]\n\n### [INST]\nInstruction: Answer the question based on your \naviation knowledge. Here is context to help:\n\n[Document(page_content=\'For example, a company&amp;#39;s share price might go\\nfrom 100 to 105 in one year, meaning its shares are currently worth £105. If these\\nshare prices stay fixed (and there are no profits or losses) its portfolio is said to\\nhave made a 5% return over the course of the year, giving a price returns index of\\n105/100 = 1.05.\', metadata={"source":'}</pre>
 </div>
 </div>
 </div>

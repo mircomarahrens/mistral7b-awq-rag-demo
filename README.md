@@ -9,7 +9,7 @@
     - <https://docs.vllm.ai/en/latest/quantization/auto_awq.html>
     - <https://github.com/casper-hansen/AutoAWQ>
 
-## To evaluate
+## References
 
 - <https://huggingface.co/TheBloke/SciPhi-Self-RAG-Mistral-7B-32k-AWQ>
 - <https://github.com/oobabooga/text-generation-webui>
@@ -19,9 +19,6 @@
 - <https://github.com/TimDettmers/bitsandbytes>
 - <https://www.youtube.com/watch?v=IxrlHAJtqKE>
 - <https://research.ibm.com/blog/retrieval-augmented-generation-RAG>
-
-## References
-
 - NLP Course: <https://huggingface.co/learn/nlp-course/chapter1/1>
 - Quantization: <https://huggingface.co/docs/transformers/main_classes/quantization>
 - Tokenizer: <https://huggingface.co/docs/transformers/main_classes/tokenizer>
