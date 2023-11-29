@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "mistral7b-rag-demo"
+name = "rag-demo"
 version = "0.1"
 description = ""
 authors = ["Mirco Marahrens <mirco.marahrens@googlemail.com>"]
@@ -21,6 +21,9 @@ playwright = "^1.40.0"
 html2text = "^2020.1.16"
 sentence-transformers = "^2.2.2"
 faiss-gpu = "^1.7.2"
+nvidia-ml-py3 = "^7.352.0"
+pypdf = "^3.17.1"
+pdfminer-six = "^20221105"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.26.0"

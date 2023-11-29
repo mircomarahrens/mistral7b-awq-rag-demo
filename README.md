@@ -9,6 +9,15 @@
     - <https://docs.vllm.ai/en/latest/quantization/auto_awq.html>
     - <https://github.com/casper-hansen/AutoAWQ>
 
+<!-- ## Architectural overview
+
+```mermaid
+sequenceDiagram
+    User->>WebUi: Prompt
+    WebUi->>Alice: Great!
+    Alice-)John: See you later!
+``` -->
+
 ## References
 
 - <https://huggingface.co/TheBloke/SciPhi-Self-RAG-Mistral-7B-32k-AWQ>
@@ -22,6 +31,9 @@
 - NLP Course: <https://huggingface.co/learn/nlp-course/chapter1/1>
 - Quantization: <https://huggingface.co/docs/transformers/main_classes/quantization>
 - Tokenizer: <https://huggingface.co/docs/transformers/main_classes/tokenizer>
+- <https://python.langchain.com/docs/integrations/vectorstores/faiss>
+- <https://python.langchain.com/docs/modules/data_connection/document_loaders/pdf>
+- <https://openai.com/blog/introducing-text-and-code-embeddings>
 
 ## Paper
 
