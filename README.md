@@ -46,7 +46,7 @@ This will open a browser window with the notebook rendered as slides.
 
 ---
 
-## Architecture
+## Architecture (WIP)
 
 ```mermaid
 sequenceDiagram
