@@ -24,6 +24,7 @@ faiss-gpu = "^1.7.2"
 nvidia-ml-py3 = "^7.352.0"
 pypdf = "^3.17.1"
 pdfminer-six = "^20221105"
+# we needed autoawq for cu118 here
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.26.0"
@@ -34,6 +35,10 @@ notebook = "^7.0.6"
 jupyterlab = "^4.0.9"
 jupyterlab-rise = "^0.41.0"
 
+
+
+[tool.poetry.group.frontend.dependencies]
+streamlit = "^1.28.2"
 
 [[tool.poetry.source]]
 name = "pytorch"
