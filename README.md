@@ -1,11 +1,5 @@
 # Retrieval-augmented generation with open-source large language models
 
-Info: This README is created with
-
-```bash
-jupyter nbconvert --execute --to markdown notebook/README.ipynb
-```
-
 ## Prerequisites
 
 The tested environment is
@@ -66,20 +60,6 @@ jupyter nbconvert notebook/00_presentation.ipynb --to slides --post serve
 ```
 
 This will open a browser window with the notebook rendered as slides.
-
-## Architecture
-
-```mermaid
-sequenceDiagram
-    User->>WebUI: Upload documents
-    WebUI->>Controller: Upload documents
-    Controller->>Data: Upload documents
-    Data->>Data: Index documents
-
-    Tokenizer->>Data: Great!
-    Transformer->>Tokenizer: Great!
-    RAG Chain->>User: Answer
-```
 
 ## References
 
