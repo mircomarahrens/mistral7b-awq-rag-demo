@@ -53,10 +53,10 @@ pip install -r requirements.txt
 
 ## Presentation
 
-Each of the notebooks are representable as slides in a browser using, i.e. for `notebook/00_introduction.ipynb`, run
+Each of the notebooks are representable as slides in a browser using, i.e. for `notebooks/00_introduction.ipynb`, run
 
 ```bash
-jupyter nbconvert notebook/00_introduction.ipynb --to slides --post serve
+jupyter nbconvert notebooks/00_introduction.ipynb --to slides --post serve
 ```
 
 This will open a browser window with the notebook rendered as slides.
